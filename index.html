@@ -85,7 +85,9 @@
             .card img {
                 display: block;
                 width: 100%;
+                max-width: 400px;
                 height: auto;
+                max-height: 300px;
                 border-radius: 18px;
                 margin-bottom: 20px;
                 object-fit: contain;
@@ -115,15 +117,15 @@
 
     </head>
     <body>
-        <audio id="musica" playsinline preload="auto" controls src="musica.mp3" style="width:100%; display:block; margin: 0 auto 20px; max-width:520px;">
-            Seu navegador não suporta áudio.
-        </audio>
         <div class="intro">
             <div class="card">
-                <img src="./ThugLifeEditor-2026-05-07_21-37-35.jpeg" alt="Foto">
+                <img src="ThugLifeEditor-2026-05-07_21-37-35.jpeg" alt="Foto" onerror="console.log('Erro ao carregar imagem')">
                 <p>Site criado por Davi Alfa que odeia cólica.</p>
                 <p>Qualquer problema é pra entrar em contato comigo.</p>
                 <button id="playBtn">Tocar Música</button>
+                <audio id="musica" style="display:none;" playsinline preload="auto">
+                    <source src="musica.mp3" type="audio/mpeg">
+                </audio>
             </div>
         </div>
         <div class="content">
@@ -140,33 +142,39 @@
             <div class="botão"><h2>vitor tem aids</h2></div>
         </div>
         <script>
-            window.addEventListener('load', function() {
-                var audio = document.getElementById('musica');
-                var playBtn = document.getElementById('playBtn');
-                audio.volume = 1;
-                audio.muted = false;
-                audio.load();
-                playBtn.style.display = 'block';
-            });
-            document.getElementById('playBtn').addEventListener('click', function() {
-                var audio = document.getElementById('musica');
-                var playBtn = document.getElementById('playBtn');
-                audio.volume = 1;
-                audio.muted = false;
+            var audio = document.getElementById('musica');
+            var playBtn = document.getElementById('playBtn');
+            
+            playBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 audio.currentTime = 0;
-                audio.style.display = 'block';
-                audio.controls = true;
-                audio.play().then(function() {
-                    console.log('Música tocando.');
-                    playBtn.style.display = 'none';
-                }).catch(function(error) {
-                    console.log('Erro ao tocar: ' + error);
-                    alert('Erro ao tocar música: ' + error + '\nTente atualizar a página e clicar novamente.');
-                });
+                audio.volume = 1;
+                audio.muted = false;
+                
+                var promise = audio.play();
+                if (promise !== undefined) {
+                    promise.then(function() {
+                        console.log('Áudio começou a tocar');
+                        playBtn.textContent = 'Tocando...';
+                        playBtn.disabled = true;
+                    }).catch(function(error) {
+                        console.log('Erro:', error);
+                        playBtn.textContent = 'Erro ao tocar';
+                    });
+                }
             });
+            
+            audio.addEventListener('ended', function() {
+                playBtn.textContent = 'Tocar Música';
+                playBtn.disabled = false;
+            });
+            
             setTimeout(function() {
-                document.querySelector('.intro').style.display = 'none';
-                document.querySelector('.content').style.display = 'block';
+                var intro = document.querySelector('.intro');
+                var content = document.querySelector('.content');
+                if (intro) intro.style.display = 'none';
+                if (content) content.style.display = 'block';
             }, 14000);
         </script>
     </body>
